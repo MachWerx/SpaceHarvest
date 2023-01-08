@@ -9,14 +9,19 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TMPro.TextMeshPro m_CountdownText;
 
     [SerializeField] private UiButton m_CarrotButton;
+    [SerializeField] private UiButton m_MiningButton;
+    [SerializeField] private UiButton m_ResearchButton;
 
+    [SerializeField] private TimeGraph m_PopulationGraph;
     [SerializeField] private TimeGraph m_CarrotGraph;
+    [SerializeField] private TimeGraph m_ProductivityGraph;
+    [SerializeField] private TimeGraph m_CivilizationGraph;
 
-    private float m_GameAge;
     private float m_Population;
-    private float m_Countdown;
-
     private float m_CarrotCount;
+    private float m_Productivity;
+    private float m_Civilization;
+    private float m_GameAge;
 
     private float m_SunRotation;
     private float m_PlanetRotation;
@@ -26,11 +31,15 @@ public class GameManager : MonoBehaviour {
 
     const float kSunRotationSpeed = 36.0f;
     const float kPlanetRotationSpeed = 72.0f;
+    const float kMaxAge = 10000.0f;
+    const float kYearsPerSecond = 200.0f;
 
     // Start is called before the first frame update
     void Start() {
         m_UiLayer = LayerMask.GetMask("UI");
         m_CarrotButton.OnTapDown += CarrotButtonDown;
+        m_MiningButton.OnTapDown += MiningButtonDown;
+        m_ResearchButton.OnTapDown += ResearchButtonDown;
 
         InitGame();
     }
@@ -66,11 +75,35 @@ public class GameManager : MonoBehaviour {
         }
 
         // do simulation
-        m_GameAge += Time.deltaTime;
+        m_GameAge += Time.deltaTime * kYearsPerSecond;
         m_CarrotButton.value += Time.deltaTime;
+        if (m_CarrotButton.value == 1) {
+            CarrotButtonDown();
+        }
+        m_MiningButton.value += 0.3f * Time.deltaTime;
+        if (m_MiningButton.value == 1) {
+            MiningButtonDown();
+        }
+        m_ResearchButton.value += 0.5f * Time.deltaTime;
+
+        // bunnies eat carrots
+        m_CarrotCount -= Time.deltaTime * m_Population;
+
+        // figure out reproduction factor
+        float reproductionFactor = Mathf.Clamp01(m_CarrotCount / m_Population / 10.0f);
+        reproductionFactor = 0.5f + 1.5f * reproductionFactor;
+        m_Population *= Mathf.Pow(reproductionFactor, Time.deltaTime);
+        m_Population = Mathf.Clamp(m_Population, 2.0f, 1e10f);
 
         // update graphs
-        m_CarrotGraph.AddData(m_GameAge / 100.0f, m_CarrotCount);
+        m_PopulationGraph.AddData(m_GameAge / kMaxAge, m_Population);
+        m_CarrotGraph.AddData(m_GameAge / kMaxAge, m_CarrotCount);
+        m_ProductivityGraph.AddData(m_GameAge / kMaxAge, m_Productivity);
+        m_CivilizationGraph.AddData(m_GameAge / kMaxAge, m_Civilization);
+
+        // update status messages
+        m_PopulationText.text = "Bunny Population: " + m_Population.ToString("n0");
+        m_CountdownText.text = "Space Cats will arrive in: " + (kMaxAge - m_GameAge).ToString("n0") + " years";
     }
 
     void InitGame() {
@@ -79,14 +112,41 @@ public class GameManager : MonoBehaviour {
 
         m_GameAge = 0;
         m_Population = 10.0f;
-        m_Countdown = 10000.0f;
 
-        m_CarrotCount = 20;
-        m_CarrotGraph.Init(m_CarrotCount, 1e6f, true);
+        m_Population = 10;
+        m_PopulationGraph.Init(m_Population, 1e10f, true);
+
+        m_CarrotCount = 100;
+        m_CarrotGraph.Init(m_CarrotCount, 1e10f, true);
+
+        m_Productivity = 20;
+        m_ProductivityGraph.Init(m_Productivity, 1e10f, true);
+
+        m_Civilization = 1;
+        m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
     }
 
     void CarrotButtonDown() {
-        m_CarrotButton.value = 0;
-        m_CarrotCount += 10f;
+        if (m_CarrotButton.value == 1) {
+            m_CarrotButton.value = 0;
+            m_CarrotCount += m_Productivity;
+            m_CarrotCount = Mathf.Clamp(m_CarrotCount, 1, 3e10f);
+        }
+    }
+
+    void MiningButtonDown() {
+        if (m_MiningButton.value == 1) {
+            m_MiningButton.value = 0;
+            m_Productivity += 100 * Mathf.Pow(10.0f, Mathf.Log10(m_Civilization));
+            m_Productivity = Mathf.Clamp(m_Productivity, 100, 1e10f);
+        }
+    }
+
+    void ResearchButtonDown() {
+        if (m_ResearchButton.value == 1) {
+            m_ResearchButton.value = 0;
+            m_Civilization *= 10;
+            m_Civilization = Mathf.Clamp(m_Civilization, 1, 1e10f);
+        }
     }
 }
