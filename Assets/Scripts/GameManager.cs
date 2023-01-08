@@ -10,9 +10,13 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField] private UiButton m_CarrotButton;
 
+    [SerializeField] private TimeGraph m_CarrotGraph;
+
     private float m_GameAge;
     private float m_Population;
     private float m_Countdown;
+
+    private float m_CarrotCount;
 
     private float m_SunRotation;
     private float m_PlanetRotation;
@@ -50,7 +54,7 @@ public class GameManager : MonoBehaviour {
             if (Input.GetMouseButtonDown(0)) {
                 Debug.Assert(m_ActiveUiElement == null);
                 UiElement uiElement = hit.collider.GetComponent<UiElement>();
-                print("down on " + hit.collider.name);
+                //print("down on " + hit.collider.name);
                 Debug.Assert(uiElement != null);
                 m_ActiveUiElement = uiElement;
                 m_ActiveUiElement.ElementDown(screenPoint);
@@ -64,6 +68,9 @@ public class GameManager : MonoBehaviour {
         // do simulation
         m_GameAge += Time.deltaTime;
         m_CarrotButton.value += Time.deltaTime;
+
+        // update graphs
+        m_CarrotGraph.AddData(m_GameAge / 100.0f, m_CarrotCount);
     }
 
     void InitGame() {
@@ -73,9 +80,13 @@ public class GameManager : MonoBehaviour {
         m_GameAge = 0;
         m_Population = 10.0f;
         m_Countdown = 10000.0f;
+
+        m_CarrotCount = 20;
+        m_CarrotGraph.Init(m_CarrotCount, 1e6f, true);
     }
 
     void CarrotButtonDown() {
         m_CarrotButton.value = 0;
+        m_CarrotCount += 10f;
     }
 }
