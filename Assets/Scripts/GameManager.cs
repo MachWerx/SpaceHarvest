@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private GameObject m_BunnyWinGroup;
     [SerializeField] private UiButton m_BunnyWinButton;
 
+    [SerializeField] private AudioSource m_GemsAudio;
+    [SerializeField] private AudioSource m_ChompAudio;
+
     private float m_Gems = 0;
     const float kGemCost1 = 200;
     const float kGemCost2 = 400;
@@ -203,6 +206,7 @@ public class GameManager : MonoBehaviour {
                     (int)reward + " gems as a reward.";
                 //print("Gems = " + m_Gems + " + " + reward);
                 m_Gems += reward;
+                m_GemsAudio.Play();
                 m_GameMode = GameMode.GameOver;
             }
         }
@@ -325,26 +329,26 @@ public class GameManager : MonoBehaviour {
     void UpdateUpgradeButton() {
         m_UpgradeButton.transform.parent.parent.parent.gameObject.SetActive(true);
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
-            m_UpgradeTitleText.text = "Smarter Bunnies";
+            m_UpgradeTitleText.text = "Upgrade Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can use tools which\n" +
                 "increase productivity(" + (int)m_Gems + "/" + kGemCost1 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost1 ? Color.white : Color.black;
+                m_Gems > kGemCost1 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
             m_UpgradeTitleText.text = "Bunny Autonomy";
             m_UpgradeDescriptionText.text =
                 "Bunnies will forage and mine\n" +
                 "automatically (" + (int)m_Gems + "/" + kGemCost2 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost2 ? Color.white : Color.black;
+                m_Gems > kGemCost2 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
             m_UpgradeTitleText.text = "Sentient Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can do research and\n" +
                 "form a civilization (" + (int)m_Gems + "/" + kGemCost3 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost3 ? Color.white : Color.black;
+                m_Gems > kGemCost3 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
             m_UpgradeButton.transform.parent.parent.parent.gameObject.SetActive(false);
         }
@@ -438,6 +442,7 @@ public class GameManager : MonoBehaviour {
         m_GameUiGroup.SetActive(false);
         UpdateUpgradeButton();
         m_GameMode = GameMode.MainMenu;
+        m_ChompAudio.Play();
     }
 
     void BunnyWinButtonDown() {
