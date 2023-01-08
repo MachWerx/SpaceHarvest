@@ -157,16 +157,20 @@ MonoBehaviour:
   m_PopulationText: {fileID: 780323445}
   m_CountdownText: {fileID: 1214757349}
   m_GameUiGroup: {fileID: 2110285397}
+  m_PopulationGraph: {fileID: 1931322625}
+  m_CarrotGraph: {fileID: 1059309322}
+  m_ProductivityGraph: {fileID: 1306241809}
+  m_CivilizationGraph: {fileID: 2109259215}
+  m_PopulationLegend: {fileID: 612909431}
+  m_CarrotLegend: {fileID: 1047181502}
+  m_ProductivityLegend: {fileID: 693085777}
+  m_CivilizationLegend: {fileID: 284489314}
   m_CarrotButton: {fileID: 225132446}
   m_MiningButton: {fileID: 1029962549}
   m_ResearchButton: {fileID: 109013809}
   m_CarrotSlider: {fileID: 1142658830}
   m_MiningSlider: {fileID: 1329795749}
   m_ResearchSlider: {fileID: 2058027812}
-  m_PopulationGraph: {fileID: 1931322625}
-  m_CarrotGraph: {fileID: 1059309322}
-  m_ProductivityGraph: {fileID: 1306241809}
-  m_CivilizationGraph: {fileID: 2109259215}
   m_MenuGroup: {fileID: 756382446}
   m_StartButton: {fileID: 1119461714}
   m_UpgradeButton: {fileID: 1735452050}
