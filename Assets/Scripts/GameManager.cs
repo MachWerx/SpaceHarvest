@@ -101,7 +101,7 @@ public class GameManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        float gameDeltaTime = 2 * Time.deltaTime;
+        float gameDeltaTime = 10 * Time.deltaTime;
 
         // rotate sun and planet
         m_SunRotation += gameDeltaTime * kSunRotationSpeed;
@@ -181,9 +181,11 @@ public class GameManager : MonoBehaviour {
         m_CivilizationLegend.gameObject.SetActive(false);
 
         m_CarrotButton.m_AutoPress = false;
+        m_CarrotButton.m_AutoPress = true;
         m_CarrotSlider.transform.parent.gameObject.SetActive(false);
         m_MiningButton.transform.parent.parent.parent.gameObject.SetActive(false);
         m_MiningButton.m_AutoPress = false;
+        m_MiningButton.m_AutoPress = true;
         m_MiningSlider.transform.parent.gameObject.SetActive(false);
         m_ResearchButton.transform.parent.parent.parent.gameObject.SetActive(false);
         m_ResearchSlider.transform.parent.gameObject.SetActive(false);
@@ -191,6 +193,8 @@ public class GameManager : MonoBehaviour {
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
             // default UI
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
+            m_ProductivityGraph.gameObject.SetActive(true);
+            m_ProductivityLegend.gameObject.SetActive(true);
             m_MiningButton.transform.parent.parent.parent.gameObject.SetActive(true);
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
             m_ProductivityGraph.gameObject.SetActive(true);
@@ -268,6 +272,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void UpdateUpgradeButton() {
+        m_UpgradeButton.transform.parent.parent.parent.gameObject.SetActive(true);
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
             m_UpgradeTitleText.text = "Smarter Bunnies";
             m_UpgradeDescriptionText.text =
@@ -290,8 +295,7 @@ public class GameManager : MonoBehaviour {
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
                 m_Gems > kGemCost3 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
-            m_UpgradeTitleText.text = "";
-            m_UpgradeDescriptionText.text = "";
+            m_UpgradeButton.transform.parent.parent.parent.gameObject.SetActive(false);
         }
     }
 
