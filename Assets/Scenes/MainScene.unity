@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 27828645}
   - component: {fileID: 27828644}
   - component: {fileID: 27828643}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,7 +168,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &27828644
@@ -254,6 +254,7 @@ MonoBehaviour:
   m_Planet: {fileID: 1162225732}
   m_PopulationText: {fileID: 780323445}
   m_CountdownText: {fileID: 1214757349}
+  m_CarrotButton: {fileID: 225132446}
 --- !u!4 &105429686
 Transform:
   m_ObjectHideFlags: 0
@@ -314,7 +315,8 @@ GameObject:
   - component: {fileID: 225132445}
   - component: {fileID: 225132444}
   - component: {fileID: 225132443}
-  m_Layer: 0
+  - component: {fileID: 225132446}
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -347,7 +349,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &225132444
@@ -400,6 +402,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225132441}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &225132446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225132441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e1ec746686c94b318e4f714b15861f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &365970146
 GameObject:
   m_ObjectHideFlags: 0
@@ -1707,7 +1721,7 @@ GameObject:
   - component: {fileID: 1142658829}
   - component: {fileID: 1142658828}
   - component: {fileID: 1142658827}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1740,7 +1754,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1142658828
 MeshRenderer:
@@ -1999,7 +2013,7 @@ GameObject:
   - component: {fileID: 1183049024}
   - component: {fileID: 1183049023}
   - component: {fileID: 1183049022}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2032,7 +2046,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1183049023
@@ -2401,7 +2415,7 @@ GameObject:
   - component: {fileID: 1507635985}
   - component: {fileID: 1507635984}
   - component: {fileID: 1507635983}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2434,7 +2448,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1507635984
 MeshRenderer:
@@ -2498,7 +2512,7 @@ GameObject:
   - component: {fileID: 1579961942}
   - component: {fileID: 1579961941}
   - component: {fileID: 1579961940}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2531,7 +2545,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1579961941
 MeshRenderer:
