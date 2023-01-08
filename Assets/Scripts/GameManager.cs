@@ -21,10 +21,13 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TimeGraph m_ProductivityGraph;
     [SerializeField] private TimeGraph m_CivilizationGraph;
 
+    [SerializeField] private UiButton m_StartButton;
     [SerializeField] private GameObject m_MenuGroup;
     [SerializeField] private UiButton m_UpgradeButton;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeTitleText;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeDescriptionText;
+
+    private float m_Gems = 37;
 
     private float m_Population;
     private float m_CarrotCount;
@@ -43,19 +46,27 @@ public class GameManager : MonoBehaviour {
     const float kMaxAge = 10000.0f;
     const float kYearsPerSecond = 200.0f;
 
+    enum GameMode {
+        MainMenu,
+        PlayingGame,
+        GameOver,
+        GameSummary
+    }
+    private GameMode m_GameMode = GameMode.MainMenu;
+
     enum UpgradeLevel {
         NormalBunnies,
         SmarterBunnies,
         BunnyAutonomy,
         SentientBunnies
     }
-
     private UpgradeLevel m_UpgradeLevel = UpgradeLevel.NormalBunnies;
 
     // Start is called before the first frame update
     void Start() {
         m_UiLayer = LayerMask.GetMask("UI");
 
+        m_StartButton.OnTapDown += StartButtonDown;
         m_UpgradeButton.OnTapDown += UpgradeButtonDown;
 
         m_CarrotButton.OnTapDown += CarrotButtonDown;
@@ -98,39 +109,43 @@ public class GameManager : MonoBehaviour {
             m_ActiveUiElement = null;
         }
 
-        // do simulation
-        m_GameAge += Time.deltaTime * kYearsPerSecond;
-        m_CarrotButton.value += Time.deltaTime;
-        //if (m_CarrotButton.value == 1) {
-        //    CarrotButtonDown();
-        //}
-        m_MiningButton.value += 0.3f * Time.deltaTime;
-        //if (m_MiningButton.value == 1) {
-        //    MiningButtonDown();
-        //}
-        m_ResearchButton.value += 0.5f * Time.deltaTime;
+        if (m_GameMode == GameMode.MainMenu) {
 
-        // bunnies eat carrots
-        m_CarrotCount -= Time.deltaTime * m_Population;
+        } else if (m_GameMode == GameMode.PlayingGame) {
+            // do simulation
+            m_GameAge += Time.deltaTime * kYearsPerSecond;
+            m_CarrotButton.value += Time.deltaTime;
+            m_MiningButton.value += 0.3f * Time.deltaTime;
+            m_ResearchButton.value += 0.5f * Time.deltaTime;
 
-        // figure out reproduction factor
-        float reproductionFactor = Mathf.Clamp01(m_CarrotCount / m_Population / 10.0f);
-        reproductionFactor = 0.5f + 1.5f * reproductionFactor;
-        m_Population *= Mathf.Pow(reproductionFactor, Time.deltaTime);
-        m_Population = Mathf.Clamp(m_Population, 2.0f, 1e10f);
+            // bunnies eat carrots
+            m_CarrotCount -= Time.deltaTime * m_Population;
 
-        // update graphs
-        m_PopulationGraph.AddData(m_GameAge / kMaxAge, m_Population);
-        m_CarrotGraph.AddData(m_GameAge / kMaxAge, m_CarrotCount);
-        m_ProductivityGraph.AddData(m_GameAge / kMaxAge, m_Productivity);
-        m_CivilizationGraph.AddData(m_GameAge / kMaxAge, m_Civilization);
+            // figure out reproduction factor
+            float reproductionFactor = Mathf.Clamp01(m_CarrotCount / m_Population / 10.0f);
+            reproductionFactor = 0.5f + 1.5f * reproductionFactor;
+            m_Population *= Mathf.Pow(reproductionFactor, Time.deltaTime);
+            m_Population = Mathf.Clamp(m_Population, 2.0f, 1e10f);
 
-        // update status messages
-        m_PopulationText.text = "Bunny Population: " + m_Population.ToString("n0");
-        m_CountdownText.text = "Space Cats will arrive in: " + (kMaxAge - m_GameAge).ToString("n0") + " years";
+            // update graphs
+            m_PopulationGraph.AddData(m_GameAge / kMaxAge, m_Population);
+            m_CarrotGraph.AddData(m_GameAge / kMaxAge, m_CarrotCount);
+            m_ProductivityGraph.AddData(m_GameAge / kMaxAge, m_Productivity);
+            m_CivilizationGraph.AddData(m_GameAge / kMaxAge, m_Civilization);
+
+            // update status messages
+            m_PopulationText.text = "Bunny Population: " + m_Population.ToString("n0");
+            m_CountdownText.text = "Space Cats will arrive in: " + (kMaxAge - m_GameAge).ToString("n0") + " years";
+
+            if (m_GameAge >= kMaxAge) {
+                m_GameMode = GameMode.GameOver;
+            }
+        }
     }
 
     void InitGame() {
+        UpdateUpgradeButton();
+
         m_SunRotation = 0;
         m_PlanetRotation = 0;
 
@@ -156,23 +171,38 @@ public class GameManager : MonoBehaviour {
         m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
     }
 
+    void StartButtonDown() {
+        InitGame();
+        m_GameMode = GameMode.PlayingGame;
+    }
+
     void UpgradeButtonDown() {
         m_UpgradeLevel += 1;
+        UpdateUpgradeButton();
+    }
+
+    void UpdateUpgradeButton() {
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
             m_UpgradeTitleText.text = "Smarter Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can use tools which\n" +
-                "increase productivity(10 gems)";
+                "increase productivity(" + (int)m_Gems + "/10 gems)";
+            m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
+                m_Gems > 10 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
             m_UpgradeTitleText.text = "Bunny Autonomy";
             m_UpgradeDescriptionText.text =
-                "Bunnies will forage and\n" +
-                "mine automatically (20 gems)";
+                "Bunnies will forage and mine\n" +
+                "automatically (" + (int)m_Gems + "/20 gems)";
+            m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
+                m_Gems > 20 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
             m_UpgradeTitleText.text = "Sentient Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can do research and\n" +
-                "form a civilization (40 gems)";
+                "form a civilization (" + (int)m_Gems + "/40 gems)";
+            m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
+                m_Gems > 40 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
             m_UpgradeTitleText.text = "";
             m_UpgradeDescriptionText.text = "";

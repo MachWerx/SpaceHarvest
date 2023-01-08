@@ -166,6 +166,7 @@ MonoBehaviour:
   m_CarrotGraph: {fileID: 1059309322}
   m_ProductivityGraph: {fileID: 1306241809}
   m_CivilizationGraph: {fileID: 2109259215}
+  m_StartButton: {fileID: 1119461714}
   m_MenuGroup: {fileID: 756382446}
   m_UpgradeButton: {fileID: 1735452050}
   m_UpgradeTitleText: {fileID: 1567573922}
