@@ -31,16 +31,21 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private GameObject m_MenuGroup;
     [SerializeField] private UiButton m_StartButton;
     [SerializeField] private UiButton m_UpgradeButton;
+    [SerializeField] private UiButton m_ResetButton;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeTitleText;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeDescriptionText;
 
     [SerializeField] private GameObject m_HarvestGroup;
+    [SerializeField] private TMPro.TextMeshPro m_HarvestDescriptionText;
     [SerializeField] private UiButton m_HarvestButton;
 
+    [SerializeField] private GameObject m_BunnyWinGroup;
+    [SerializeField] private UiButton m_BunnyWinButton;
+
     private float m_Gems = 0;
-    const float kGemCost1 = 2;
-    const float kGemCost2 = 5;
-    const float kGemCost3 = 10;
+    const float kGemCost1 = 200;
+    const float kGemCost2 = 400;
+    const float kGemCost3 = 600;
 
     private float m_Population;
     private float m_CarrotCount;
@@ -76,14 +81,18 @@ public class GameManager : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
+        m_Gems = 0;
+        //m_Gems = 20;
         m_UiLayer = LayerMask.GetMask("UI");
 
         m_MenuGroup.SetActive(true);
+        m_ResetButton.transform.parent.parent.parent.gameObject.SetActive(false);
 
         m_GameUiGroup.SetActive(false);
 
         m_StartButton.OnTapDown += StartButtonDown;
         m_UpgradeButton.OnTapDown += UpgradeButtonDown;
+        m_ResetButton.OnTapDown += ResetButtonDown;
 
         m_CarrotButton.OnTapDown += CarrotButtonDown;
         m_MiningButton.OnTapDown += MiningButtonDown;
@@ -95,13 +104,15 @@ public class GameManager : MonoBehaviour {
         m_HarvestButton.OnTapDown += HarvestButtonDown;
 
         m_HarvestGroup.SetActive(false);
+        m_BunnyWinGroup.SetActive(false);
+        m_BunnyWinButton.OnTapDown += BunnyWinButtonDown;
 
         InitGame();
     }
 
     // Update is called once per frame
     void Update() {
-        float gameDeltaTime = 10 * Time.deltaTime;
+        float gameDeltaTime = 1.5f * Time.deltaTime;
 
         // rotate sun and planet
         m_SunRotation += gameDeltaTime * kSunRotationSpeed;
@@ -139,9 +150,11 @@ public class GameManager : MonoBehaviour {
             if (m_GameAge > kMaxAge) {
                 m_GameAge = kMaxAge;
             }
-            m_CarrotButton.value += gameDeltaTime;
-            m_MiningButton.value += 0.3f * gameDeltaTime;
-            m_ResearchButton.value += 0.5f * gameDeltaTime;
+            m_CarrotButton.value += m_CarrotSlider.value * gameDeltaTime;
+            float miningFactor = m_Population / m_Productivity / 2.0f;
+            m_MiningButton.value += m_MiningSlider.value * miningFactor * gameDeltaTime;
+            float researchFactor = m_Population / m_Civilization / 0.5f;
+            m_ResearchButton.value += m_ResearchSlider.value * researchFactor * gameDeltaTime;
 
             // bunnies eat carrots
             m_CarrotCount -= gameDeltaTime * m_Population;
@@ -162,10 +175,19 @@ public class GameManager : MonoBehaviour {
             m_PopulationText.text = "Bunny Population: " + m_Population.ToString("n0");
             m_CountdownText.text = "Space Cats will arrive in: " + (kMaxAge - m_GameAge).ToString("n0") + " years";
 
-            if (m_GameAge >= kMaxAge) {
+            if (m_Civilization >= 5e9) {
+                m_BunnyWinGroup.SetActive(true);
+                m_GameMode = GameMode.GameOver;
+            } else if (m_GameAge >= kMaxAge) {
+                float reward = 100.0f * Mathf.Log10(m_Population);
                 m_HarvestGroup.SetActive(true);
-                print("Gems = " + m_Gems + " + " + Mathf.Log10(m_Population));
-                m_Gems += Mathf.Log10(m_Population);
+                m_HarvestDescriptionText.text =
+                    "The space cats have arrived\n" +
+                    "and look hugrily upon the fruits\n" +
+                    "of your labor.They hand you\n" +
+                    (int)reward + " gems as a reward.";
+                //print("Gems = " + m_Gems + " + " + reward);
+                m_Gems += reward;
                 m_GameMode = GameMode.GameOver;
             }
         }
@@ -180,12 +202,16 @@ public class GameManager : MonoBehaviour {
         m_ProductivityLegend.gameObject.SetActive(false);
         m_CivilizationLegend.gameObject.SetActive(false);
 
+        m_CarrotSlider.value = 1.0f;
+        m_MiningSlider.value = 0.0f;
+        m_ResearchSlider.value = 0.0f;
+
         m_CarrotButton.m_AutoPress = false;
-        m_CarrotButton.m_AutoPress = true;
+        //m_CarrotButton.m_AutoPress = true;
         m_CarrotSlider.transform.parent.gameObject.SetActive(false);
         m_MiningButton.transform.parent.parent.parent.gameObject.SetActive(false);
         m_MiningButton.m_AutoPress = false;
-        m_MiningButton.m_AutoPress = true;
+        //m_MiningButton.m_AutoPress = true;
         m_MiningSlider.transform.parent.gameObject.SetActive(false);
         m_ResearchButton.transform.parent.parent.parent.gameObject.SetActive(false);
         m_ResearchSlider.transform.parent.gameObject.SetActive(false);
@@ -193,10 +219,18 @@ public class GameManager : MonoBehaviour {
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
             // default UI
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
+            // add mining button
+            m_CarrotSlider.value = 0.5f;
+            m_MiningSlider.value = 0.5f;
+
             m_ProductivityGraph.gameObject.SetActive(true);
             m_ProductivityLegend.gameObject.SetActive(true);
             m_MiningButton.transform.parent.parent.parent.gameObject.SetActive(true);
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
+            // add sliders
+            m_CarrotSlider.value = 0.5f;
+            m_MiningSlider.value = 0.5f;
+
             m_ProductivityGraph.gameObject.SetActive(true);
             m_ProductivityLegend.gameObject.SetActive(true);
             m_CarrotButton.m_AutoPress = true;
@@ -205,6 +239,10 @@ public class GameManager : MonoBehaviour {
             m_MiningButton.m_AutoPress = true;
             m_MiningSlider.transform.parent.gameObject.SetActive(true);
         } else {
+            // add research
+            m_CarrotSlider.value = 0.5f;
+            m_MiningSlider.value = 0.5f;
+
             m_ProductivityGraph.gameObject.SetActive(true);
             m_ProductivityLegend.gameObject.SetActive(true);
             m_CarrotButton.m_AutoPress = true;
@@ -215,6 +253,7 @@ public class GameManager : MonoBehaviour {
             m_MiningButton.m_AutoPress = true;
             m_MiningSlider.transform.parent.gameObject.SetActive(true);
             m_ResearchButton.transform.parent.parent.parent.gameObject.SetActive(true);
+            m_ResearchButton.m_AutoPress = true;
             m_ResearchSlider.transform.parent.gameObject.SetActive(true);
         }
 
@@ -229,17 +268,14 @@ public class GameManager : MonoBehaviour {
         m_PopulationGraph.Init(m_Population, 1e10f, true);
 
         m_CarrotButton.value = 0;
-        m_CarrotSlider.value = 0.5f;
         m_CarrotCount = 5;
         m_CarrotGraph.Init(m_CarrotCount, 1e10f, true);
 
         m_MiningButton.value = 0;
-        m_MiningSlider.value = 0.5f;
         m_Productivity = 20;
         m_ProductivityGraph.Init(m_Productivity, 1e10f, true);
 
         m_ResearchButton.value = 0;
-        m_ResearchSlider.value = 0.0f;
         m_Civilization = 1;
         m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
     }
@@ -299,6 +335,13 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    void ResetButtonDown() {
+        m_Gems = 0;
+        m_UpgradeLevel = UpgradeLevel.NormalBunnies;
+        m_ResetButton.transform.parent.parent.parent.gameObject.SetActive(false);
+        UpdateUpgradeButton();
+    }
+
     void CarrotButtonDown() {
         if (m_CarrotButton.value == 1) {
             m_CarrotButton.value = 0;
@@ -318,6 +361,7 @@ public class GameManager : MonoBehaviour {
     void ResearchButtonDown() {
         if (m_ResearchButton.value == 1) {
             m_ResearchButton.value = 0;
+            m_Productivity *= 5;
             m_Civilization *= 10;
             m_Civilization = Mathf.Clamp(m_Civilization, 1, 1e10f);
         }
@@ -376,6 +420,15 @@ public class GameManager : MonoBehaviour {
     void HarvestButtonDown() {
         m_HarvestGroup.SetActive(false);
         m_MenuGroup.SetActive(true);
+        m_GameUiGroup.SetActive(false);
+        UpdateUpgradeButton();
+        m_GameMode = GameMode.MainMenu;
+    }
+
+    void BunnyWinButtonDown() {
+        m_BunnyWinGroup.SetActive(false);
+        m_MenuGroup.SetActive(true);
+        m_ResetButton.transform.parent.parent.parent.gameObject.SetActive(true);
         m_GameUiGroup.SetActive(false);
         UpdateUpgradeButton();
         m_GameMode = GameMode.MainMenu;
