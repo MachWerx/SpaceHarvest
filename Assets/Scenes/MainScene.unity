@@ -165,6 +165,8 @@ MonoBehaviour:
   m_CarrotLegend: {fileID: 1047181502}
   m_ProductivityLegend: {fileID: 693085777}
   m_CivilizationLegend: {fileID: 284489314}
+  m_CarrotButtonLabel: {fileID: 461020588}
+  m_MiningButtonLabel: {fileID: 1492631319}
   m_CarrotButton: {fileID: 225132446}
   m_MiningButton: {fileID: 1029962549}
   m_ResearchButton: {fileID: 109013809}
@@ -3118,7 +3120,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'The space cats have arrived
 
-    and look hugrily upon the fruits
+    and look hungrily upon the fruits
 
     of
     your labor. They hand you

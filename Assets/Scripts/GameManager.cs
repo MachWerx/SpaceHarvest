@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TMPro.TextMeshPro m_ProductivityLegend;
     [SerializeField] private TMPro.TextMeshPro m_CivilizationLegend;
 
+    [SerializeField] private TMPro.TextMeshPro m_CarrotButtonLabel;
+    [SerializeField] private TMPro.TextMeshPro m_MiningButtonLabel;
+
     [SerializeField] private UiButton m_CarrotButton;
     [SerializeField] private UiButton m_MiningButton;
     [SerializeField] private UiButton m_ResearchButton;
@@ -145,14 +148,26 @@ public class GameManager : MonoBehaviour {
         if (m_GameMode == GameMode.MainMenu) {
 
         } else if (m_GameMode == GameMode.PlayingGame) {
-            // do simulation
+            // increment age
             m_GameAge += gameDeltaTime * kYearsPerSecond;
             if (m_GameAge > kMaxAge) {
                 m_GameAge = kMaxAge;
             }
+
+            // advance buttons
             m_CarrotButton.value += m_CarrotSlider.value * gameDeltaTime;
+            if (m_CarrotButton.value >= 1) {
+                m_CarrotButtonLabel.text = "Harvest!";
+            } else {
+                m_CarrotButtonLabel.text = "Carrots";
+            }
             float miningFactor = m_Population / m_Productivity / 2.0f;
             m_MiningButton.value += m_MiningSlider.value * miningFactor * gameDeltaTime;
+            if (m_MiningButton.value >= 1) {
+                m_MiningButtonLabel.text = "Harvest!";
+            } else {
+                m_MiningButtonLabel.text = "Mining";
+            }
             float researchFactor = m_Population / m_Civilization / 0.5f;
             m_ResearchButton.value += m_ResearchSlider.value * researchFactor * gameDeltaTime;
 
@@ -183,7 +198,7 @@ public class GameManager : MonoBehaviour {
                 m_HarvestGroup.SetActive(true);
                 m_HarvestDescriptionText.text =
                     "The space cats have arrived\n" +
-                    "and look hugrily upon the fruits\n" +
+                    "and look hungrily upon the fruits\n" +
                     "of your labor.They hand you\n" +
                     (int)reward + " gems as a reward.";
                 //print("Gems = " + m_Gems + " + " + reward);
