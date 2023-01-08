@@ -12,6 +12,10 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private UiButton m_MiningButton;
     [SerializeField] private UiButton m_ResearchButton;
 
+    [SerializeField] private UiSlider m_CarrotSlider;
+    [SerializeField] private UiSlider m_MiningSlider;
+    [SerializeField] private UiSlider m_ResearchSlider;
+
     [SerializeField] private TimeGraph m_PopulationGraph;
     [SerializeField] private TimeGraph m_CarrotGraph;
     [SerializeField] private TimeGraph m_ProductivityGraph;
@@ -40,6 +44,9 @@ public class GameManager : MonoBehaviour {
         m_CarrotButton.OnTapDown += CarrotButtonDown;
         m_MiningButton.OnTapDown += MiningButtonDown;
         m_ResearchButton.OnTapDown += ResearchButtonDown;
+        m_CarrotSlider.OnTapDragged += CarrotSliderDragged;
+        m_MiningSlider.OnTapDragged += MiningSliderDragged;
+        m_ResearchSlider.OnTapDragged += ResearchSliderDragged;
 
         InitGame();
     }
@@ -116,18 +123,20 @@ public class GameManager : MonoBehaviour {
         m_Population = 10;
         m_PopulationGraph.Init(m_Population, 1e10f, true);
 
+        m_CarrotButton.m_AutoPress = true;
+        m_CarrotSlider.value = 0.5f;
         m_CarrotCount = 100;
         m_CarrotGraph.Init(m_CarrotCount, 1e10f, true);
 
+        m_MiningButton.m_AutoPress = true;
+        m_MiningSlider.value = 0.5f;
         m_Productivity = 20;
         m_ProductivityGraph.Init(m_Productivity, 1e10f, true);
 
+        m_ResearchButton.m_AutoPress = true;
+        m_ResearchSlider.value = 0.0f;
         m_Civilization = 1;
         m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
-
-        m_CarrotButton.m_AutoPress = true;
-        m_MiningButton.m_AutoPress = true;
-        m_ResearchButton.m_AutoPress = true;
     }
 
     void CarrotButtonDown() {
@@ -152,5 +161,55 @@ public class GameManager : MonoBehaviour {
             m_Civilization *= 10;
             m_Civilization = Mathf.Clamp(m_Civilization, 1, 1e10f);
         }
+    }
+
+    void CarrotSliderDragged() {
+        if (m_ResearchSlider.gameObject.activeInHierarchy) {
+            float researchProportion;
+            if (m_ResearchSlider.value == 0 && m_MiningSlider.value == 0) {
+                researchProportion = 0.5f;
+            } else if (m_MiningSlider.value == 0) {
+                researchProportion = 1.0f;
+            } else {
+                researchProportion = m_ResearchSlider.value / (m_ResearchSlider.value + m_MiningSlider.value);
+            }
+
+            m_ResearchSlider.value = (1.0f - m_CarrotSlider.value) * researchProportion;
+            m_MiningSlider.value = (1.0f - m_CarrotSlider.value) * (1.0f - researchProportion);
+        } else {
+            m_MiningSlider.value = 1.0f - m_CarrotSlider.value;
+        }
+    }
+
+    void MiningSliderDragged() {
+        if (m_ResearchSlider.gameObject.activeInHierarchy) {
+            float researchProportion;
+            if (m_ResearchSlider.value == 0 && m_CarrotSlider.value == 0) {
+                researchProportion = 0.5f;
+            } else if (m_CarrotSlider.value == 0) {
+                researchProportion = 1.0f;
+            } else {
+                researchProportion = m_ResearchSlider.value / (m_ResearchSlider.value + m_CarrotSlider.value);
+            }
+
+            m_ResearchSlider.value = (1.0f - m_MiningSlider.value) * researchProportion;
+            m_CarrotSlider.value = (1.0f - m_MiningSlider.value) * (1.0f - researchProportion);
+        } else {
+            m_CarrotSlider.value = 1.0f - m_MiningSlider.value;
+        }
+    }
+
+    void ResearchSliderDragged() {
+        float carrotProportion;
+        if (m_CarrotSlider.value == 0 && m_MiningSlider.value == 0) {
+            carrotProportion = 0.5f;
+        } else if (m_MiningSlider.value == 0) {
+            carrotProportion = 1.0f;
+        } else {
+            carrotProportion = m_CarrotSlider.value / (m_CarrotSlider.value + m_MiningSlider.value);
+        }
+
+        m_CarrotSlider.value = (1.0f - m_ResearchSlider.value) * carrotProportion;
+        m_MiningSlider.value = (1.0f - m_ResearchSlider.value) * (1.0f - carrotProportion);
     }
 }
