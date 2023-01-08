@@ -21,6 +21,11 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TimeGraph m_ProductivityGraph;
     [SerializeField] private TimeGraph m_CivilizationGraph;
 
+    [SerializeField] private GameObject m_MenuGroup;
+    [SerializeField] private UiButton m_UpgradeButton;
+    [SerializeField] private TMPro.TextMeshPro m_UpgradeTitleText;
+    [SerializeField] private TMPro.TextMeshPro m_UpgradeDescriptionText;
+
     private float m_Population;
     private float m_CarrotCount;
     private float m_Productivity;
@@ -38,9 +43,21 @@ public class GameManager : MonoBehaviour {
     const float kMaxAge = 10000.0f;
     const float kYearsPerSecond = 200.0f;
 
+    enum UpgradeLevel {
+        NormalBunnies,
+        SmarterBunnies,
+        BunnyAutonomy,
+        SentientBunnies
+    }
+
+    private UpgradeLevel m_UpgradeLevel = UpgradeLevel.NormalBunnies;
+
     // Start is called before the first frame update
     void Start() {
         m_UiLayer = LayerMask.GetMask("UI");
+
+        m_UpgradeButton.OnTapDown += UpgradeButtonDown;
+
         m_CarrotButton.OnTapDown += CarrotButtonDown;
         m_MiningButton.OnTapDown += MiningButtonDown;
         m_ResearchButton.OnTapDown += ResearchButtonDown;
@@ -137,6 +154,29 @@ public class GameManager : MonoBehaviour {
         m_ResearchSlider.value = 0.0f;
         m_Civilization = 1;
         m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
+    }
+
+    void UpgradeButtonDown() {
+        m_UpgradeLevel += 1;
+        if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
+            m_UpgradeTitleText.text = "Smarter Bunnies";
+            m_UpgradeDescriptionText.text =
+                "Bunnies can use tools which\n" +
+                "increase productivity(10 gems)";
+        } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
+            m_UpgradeTitleText.text = "Bunny Autonomy";
+            m_UpgradeDescriptionText.text =
+                "Bunnies will forage and\n" +
+                "mine automatically (20 gems)";
+        } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
+            m_UpgradeTitleText.text = "Sentient Bunnies";
+            m_UpgradeDescriptionText.text =
+                "Bunnies can do research and\n" +
+                "form a civilization (40 gems)";
+        } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
+            m_UpgradeTitleText.text = "";
+            m_UpgradeDescriptionText.text = "";
+        }
     }
 
     void CarrotButtonDown() {
