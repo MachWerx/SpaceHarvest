@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField] private UiButton m_CarrotButton;
 
+    private float m_GameAge;
     private float m_Population;
     private float m_Countdown;
 
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour {
             if (Input.GetMouseButtonDown(0)) {
                 Debug.Assert(m_ActiveUiElement == null);
                 UiElement uiElement = hit.collider.GetComponent<UiElement>();
+                print("down on " + hit.collider.name);
                 Debug.Assert(uiElement != null);
                 m_ActiveUiElement = uiElement;
                 m_ActiveUiElement.ElementDown(screenPoint);
@@ -60,6 +62,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // do simulation
+        m_GameAge += Time.deltaTime;
         m_CarrotButton.value += Time.deltaTime;
     }
 
@@ -67,6 +70,7 @@ public class GameManager : MonoBehaviour {
         m_SunRotation = 0;
         m_PlanetRotation = 0;
 
+        m_GameAge = 0;
         m_Population = 10.0f;
         m_Countdown = 10000.0f;
     }
