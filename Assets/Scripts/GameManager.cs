@@ -77,13 +77,13 @@ public class GameManager : MonoBehaviour {
         // do simulation
         m_GameAge += Time.deltaTime * kYearsPerSecond;
         m_CarrotButton.value += Time.deltaTime;
-        if (m_CarrotButton.value == 1) {
-            CarrotButtonDown();
-        }
+        //if (m_CarrotButton.value == 1) {
+        //    CarrotButtonDown();
+        //}
         m_MiningButton.value += 0.3f * Time.deltaTime;
-        if (m_MiningButton.value == 1) {
-            MiningButtonDown();
-        }
+        //if (m_MiningButton.value == 1) {
+        //    MiningButtonDown();
+        //}
         m_ResearchButton.value += 0.5f * Time.deltaTime;
 
         // bunnies eat carrots
@@ -124,6 +124,10 @@ public class GameManager : MonoBehaviour {
 
         m_Civilization = 1;
         m_CivilizationGraph.Init(m_Civilization, 1e10f, true);
+
+        m_CarrotButton.m_AutoPress = true;
+        m_MiningButton.m_AutoPress = true;
+        m_ResearchButton.m_AutoPress = true;
     }
 
     void CarrotButtonDown() {
