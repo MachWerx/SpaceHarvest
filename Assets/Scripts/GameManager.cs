@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TMPro.TextMeshPro m_PopulationText;
     [SerializeField] private TMPro.TextMeshPro m_CountdownText;
 
+    [SerializeField] private GameObject m_GameUiGroup;
+
     [SerializeField] private UiButton m_CarrotButton;
     [SerializeField] private UiButton m_MiningButton;
     [SerializeField] private UiButton m_ResearchButton;
@@ -21,13 +23,19 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TimeGraph m_ProductivityGraph;
     [SerializeField] private TimeGraph m_CivilizationGraph;
 
-    [SerializeField] private UiButton m_StartButton;
     [SerializeField] private GameObject m_MenuGroup;
+    [SerializeField] private UiButton m_StartButton;
     [SerializeField] private UiButton m_UpgradeButton;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeTitleText;
     [SerializeField] private TMPro.TextMeshPro m_UpgradeDescriptionText;
 
-    private float m_Gems = 37;
+    [SerializeField] private GameObject m_HarvestGroup;
+    [SerializeField] private UiButton m_HarvestButton;
+
+    private float m_Gems = 0;
+    const float kGemCost1 = 2;
+    const float kGemCost2 = 5;
+    const float kGemCost3 = 10;
 
     private float m_Population;
     private float m_CarrotCount;
@@ -43,14 +51,13 @@ public class GameManager : MonoBehaviour {
 
     const float kSunRotationSpeed = 36.0f;
     const float kPlanetRotationSpeed = 72.0f;
-    const float kMaxAge = 10000.0f;
+    const float kMaxAge = 1000.0f;
     const float kYearsPerSecond = 200.0f;
 
     enum GameMode {
         MainMenu,
         PlayingGame,
         GameOver,
-        GameSummary
     }
     private GameMode m_GameMode = GameMode.MainMenu;
 
@@ -66,6 +73,10 @@ public class GameManager : MonoBehaviour {
     void Start() {
         m_UiLayer = LayerMask.GetMask("UI");
 
+        m_MenuGroup.SetActive(true);
+
+        m_GameUiGroup.SetActive(false);
+
         m_StartButton.OnTapDown += StartButtonDown;
         m_UpgradeButton.OnTapDown += UpgradeButtonDown;
 
@@ -75,6 +86,10 @@ public class GameManager : MonoBehaviour {
         m_CarrotSlider.OnTapDragged += CarrotSliderDragged;
         m_MiningSlider.OnTapDragged += MiningSliderDragged;
         m_ResearchSlider.OnTapDragged += ResearchSliderDragged;
+
+        m_HarvestButton.OnTapDown += HarvestButtonDown;
+
+        m_HarvestGroup.SetActive(false);
 
         InitGame();
     }
@@ -138,6 +153,9 @@ public class GameManager : MonoBehaviour {
             m_CountdownText.text = "Space Cats will arrive in: " + (kMaxAge - m_GameAge).ToString("n0") + " years";
 
             if (m_GameAge >= kMaxAge) {
+                m_HarvestGroup.SetActive(true);
+                print("Gems = " + m_Gems + " + " + Mathf.Log10(m_Population));
+                m_Gems += Mathf.Log10(m_Population);
                 m_GameMode = GameMode.GameOver;
             }
         }
@@ -152,7 +170,7 @@ public class GameManager : MonoBehaviour {
         m_GameAge = 0;
         m_Population = 10.0f;
 
-        m_Population = 10;
+        m_Population = 2;
         m_PopulationGraph.Init(m_Population, 1e10f, true);
 
         m_CarrotButton.m_AutoPress = true;
@@ -172,12 +190,29 @@ public class GameManager : MonoBehaviour {
     }
 
     void StartButtonDown() {
+        m_MenuGroup.SetActive(false);
+        m_GameUiGroup.SetActive(true);
         InitGame();
         m_GameMode = GameMode.PlayingGame;
     }
 
     void UpgradeButtonDown() {
-        m_UpgradeLevel += 1;
+        if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
+            if (m_Gems > kGemCost1) {
+                m_Gems -= kGemCost1;
+                m_UpgradeLevel++;
+            }
+        } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
+            if (m_Gems > kGemCost2) {
+                m_Gems -= kGemCost2;
+                m_UpgradeLevel++;
+            }
+        } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
+            if (m_Gems > kGemCost3) {
+                m_Gems -= kGemCost3;
+                m_UpgradeLevel++;
+            }
+        }
         UpdateUpgradeButton();
     }
 
@@ -186,23 +221,23 @@ public class GameManager : MonoBehaviour {
             m_UpgradeTitleText.text = "Smarter Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can use tools which\n" +
-                "increase productivity(" + (int)m_Gems + "/10 gems)";
+                "increase productivity(" + (int)m_Gems + "/" + kGemCost1 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > 10 ? Color.white : Color.black;
+                m_Gems > kGemCost1 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
             m_UpgradeTitleText.text = "Bunny Autonomy";
             m_UpgradeDescriptionText.text =
                 "Bunnies will forage and mine\n" +
-                "automatically (" + (int)m_Gems + "/20 gems)";
+                "automatically (" + (int)m_Gems + "/" + kGemCost2 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > 20 ? Color.white : Color.black;
+                m_Gems > kGemCost2 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
             m_UpgradeTitleText.text = "Sentient Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can do research and\n" +
-                "form a civilization (" + (int)m_Gems + "/40 gems)";
+                "form a civilization (" + (int)m_Gems + "/" + kGemCost3 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > 40 ? Color.white : Color.black;
+                m_Gems > kGemCost3 ? Color.white : Color.black;
         } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
             m_UpgradeTitleText.text = "";
             m_UpgradeDescriptionText.text = "";
@@ -281,5 +316,13 @@ public class GameManager : MonoBehaviour {
 
         m_CarrotSlider.value = (1.0f - m_ResearchSlider.value) * carrotProportion;
         m_MiningSlider.value = (1.0f - m_ResearchSlider.value) * (1.0f - carrotProportion);
+    }
+
+    void HarvestButtonDown() {
+        m_HarvestGroup.SetActive(false);
+        m_MenuGroup.SetActive(true);
+        m_GameUiGroup.SetActive(false);
+        UpdateUpgradeButton();
+        m_GameMode = GameMode.MainMenu;
     }
 }
