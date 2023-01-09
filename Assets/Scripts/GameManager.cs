@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField] private AudioSource m_GemsAudio;
     [SerializeField] private AudioSource m_ChompAudio;
+    [SerializeField] private AudioSource m_HarvestReadyAudio;
+    [SerializeField] private AudioSource m_HarvestedAudio;
+    [SerializeField] private AudioSource m_LevelUpAudio;
+    [SerializeField] private AudioSource m_AscensionAudio;
 
     private float m_Gems = 0;
     const float kGemCost1 = 200;
@@ -88,7 +92,7 @@ public class GameManager : MonoBehaviour {
     // Start is called before the first frame update
     void Start() {
         m_Gems = 0;
-        //m_Gems = 20;
+        //m_Gems = 10000;
         m_UiLayer = LayerMask.GetMask("UI");
 
         m_MenuGroup.SetActive(true);
@@ -158,16 +162,24 @@ public class GameManager : MonoBehaviour {
             }
 
             // advance buttons
+            bool wasntReady = m_CarrotButton.value < 1;
             m_CarrotButton.value += m_CarrotSlider.value * gameDeltaTime;
             if (m_CarrotButton.value >= 1) {
                 m_CarrotButtonLabel.text = "Harvest!";
+                if (wasntReady) {
+                    m_HarvestReadyAudio.Play();
+                }
             } else {
                 m_CarrotButtonLabel.text = "Carrots";
             }
             float miningFactor = m_Population / m_Productivity / 2.0f;
+            wasntReady = m_MiningButton.value < 1;
             m_MiningButton.value += m_MiningSlider.value * miningFactor * gameDeltaTime;
             if (m_MiningButton.value >= 1) {
                 m_MiningButtonLabel.text = "Harvest!";
+                if (wasntReady) {
+                    m_HarvestReadyAudio.Play();
+                }
             } else {
                 m_MiningButtonLabel.text = "Mining";
             }
@@ -366,6 +378,7 @@ public class GameManager : MonoBehaviour {
             m_CarrotButton.value = 0;
             m_CarrotCount += m_Productivity;
             m_CarrotCount = Mathf.Clamp(m_CarrotCount, 1, 3e10f);
+            m_HarvestedAudio.Play();
         }
     }
 
@@ -374,6 +387,7 @@ public class GameManager : MonoBehaviour {
             m_MiningButton.value = 0;
             m_Productivity += 100 * Mathf.Pow(10.0f, Mathf.Log10(m_Civilization));
             m_Productivity = Mathf.Clamp(m_Productivity, 100, 1e10f);
+            m_HarvestedAudio.Play();
         }
     }
 
@@ -383,6 +397,11 @@ public class GameManager : MonoBehaviour {
             m_Productivity *= 5;
             m_Civilization *= 10;
             m_Civilization = Mathf.Clamp(m_Civilization, 1, 1e10f);
+            if (m_Civilization < 5e9) {
+                m_LevelUpAudio.Play();
+            } else {
+                m_AscensionAudio.Play();
+            }
         }
     }
 
