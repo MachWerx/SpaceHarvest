@@ -31,7 +31,7 @@ PlayerSettings:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
+    width: 0.99999994
     height: 1
   m_SplashScreenBackgroundPortraitUvs:
     serializedVersion: 2
@@ -45,7 +45,7 @@ PlayerSettings:
   defaultScreenWidth: 1920
   defaultScreenHeight: 1080
   defaultScreenWidthWeb: 948
-  defaultScreenHeightWeb: 529
+  defaultScreenHeightWeb: 485
   m_StereoRenderingPath: 0
   m_ActiveColorSpace: 1
   m_MTRendering: 1
@@ -606,7 +606,7 @@ PlayerSettings:
   webGLDebugSymbols: 0
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
-  webGLTemplate: APPLICATION:Minimal
+  webGLTemplate: APPLICATION:Default
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 1

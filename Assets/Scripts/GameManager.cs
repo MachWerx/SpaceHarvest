@@ -222,6 +222,12 @@ public class GameManager : MonoBehaviour {
                 m_GameMode = GameMode.GameOver;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.G) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) {
+            m_Gems += 100;
+            m_GemsAudio.Play();
+            UpdateUpgradeButton();
+        }
     }
 
     void InitGame() {
@@ -320,17 +326,17 @@ public class GameManager : MonoBehaviour {
 
     void UpgradeButtonDown() {
         if (m_UpgradeLevel == UpgradeLevel.NormalBunnies) {
-            if (m_Gems > kGemCost1) {
+            if (m_Gems >= kGemCost1) {
                 m_Gems -= kGemCost1;
                 m_UpgradeLevel++;
             }
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
-            if (m_Gems > kGemCost2) {
+            if (m_Gems >= kGemCost2) {
                 m_Gems -= kGemCost2;
                 m_UpgradeLevel++;
             }
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
-            if (m_Gems > kGemCost3) {
+            if (m_Gems >= kGemCost3) {
                 m_Gems -= kGemCost3;
                 m_UpgradeLevel++;
             }
@@ -346,21 +352,21 @@ public class GameManager : MonoBehaviour {
                 "Bunnies can use tools which\n" +
                 "increase productivity(" + (int)m_Gems + "/" + kGemCost1 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost1 ? Color.white : 0.4f * Color.white;
+                m_Gems >= kGemCost1 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.SmarterBunnies) {
             m_UpgradeTitleText.text = "Bunny Autonomy";
             m_UpgradeDescriptionText.text =
                 "Bunnies will forage and mine\n" +
                 "automatically (" + (int)m_Gems + "/" + kGemCost2 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost2 ? Color.white : 0.4f * Color.white;
+                m_Gems >= kGemCost2 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.BunnyAutonomy) {
             m_UpgradeTitleText.text = "Sentient Bunnies";
             m_UpgradeDescriptionText.text =
                 "Bunnies can do research and\n" +
                 "form a civilization (" + (int)m_Gems + "/" + kGemCost3 + " gems)";
             m_UpgradeTitleText.color = m_UpgradeDescriptionText.color =
-                m_Gems > kGemCost3 ? Color.white : 0.4f * Color.white;
+                m_Gems >= kGemCost3 ? Color.white : 0.4f * Color.white;
         } else if (m_UpgradeLevel == UpgradeLevel.SentientBunnies) {
             m_UpgradeButton.transform.parent.parent.parent.gameObject.SetActive(false);
         }
